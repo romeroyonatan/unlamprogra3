@@ -96,7 +96,30 @@ public class VectorMath {
 	}
 
 	/***
-	 * Realiza el producto interno (o producto cruz) entre dos vectores de la
+	 * Realiza el producto vectorial (o producto cruz) entre dos vectores de dimension 3
+	 * 
+	 * @param v2
+	 *            Vector con el que se realizara el producto (debe ser de dimension 3)
+	 * @return Vector resultado del producto
+	 * @throws VectorDimensionException
+	 *             En caso de que la dimesion de los vectores sea distinta de 3
+	 */
+	public VectorMath productoVectorial(VectorMath v2) throws VectorDimensionException {
+		if (this.getDimension() != 3 || v2.getDimension() != 3)
+			throw new VectorDimensionException(
+					"El producto vectorial sólo puede realizarse en vectores de dimension 3");
+
+		double[] vector = v2.getValores();
+		double[] resultado = new double[3];
+		resultado[0] = valores[1] * vector[2] - vector[1] * valores[2];
+		resultado[1] = -(valores[0] * vector[2] - vector[0] * valores[2]);
+		resultado[2] = valores[0] * vector[1] - vector[0] * valores[1];
+
+		return new VectorMath(resultado);
+	}
+
+	/***
+	 * Realiza el producto interno entre dos vectores de la
 	 * misma dimension
 	 * 
 	 * @param v2
@@ -264,7 +287,23 @@ public class VectorMath {
 		try {
 			System.out.println();
 			System.out.println("Producto interno");
-			System.out.println("v1 x v2: " + v1.producto(v2) + " / ESPERADO " + (30 + 4 + 15));
+			System.out.println("v1 · v2: " + v1.producto(v2) + " / ESPERADO " + (30 + 4 + 15));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			System.out.println("v1 · v0: ");
+			System.out.println(v1.producto(v0) + " / ESPERADO VectorDimensionException");
+		} catch (VectorDimensionException e) {
+			System.out.println("VectorDimensionException");
+		}
+
+		// Test producto vectorial ~
+		// -----------------------------------------------------------------------------------
+		try {
+			System.out.println();
+			System.out.println("Producto vectorial");
+			System.out.println("v1 x v2: " + v1.productoVectorial(v2) + " / ESPERADO (-4,41,26)");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
