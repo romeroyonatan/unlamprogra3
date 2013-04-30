@@ -2,7 +2,7 @@ package ar.edu.unlam.math;
 
 import java.util.Arrays;
 
-import ar.edu.unlam.math.exeption.VectorDimensionException;
+import ar.edu.unlam.math.exception.VectorDimensionException;
 
 public class VectorMath {
 	// Atributos ~
