@@ -14,7 +14,9 @@ public class InversorGaussJordan implements Triangulador{
 		int[] size = m.getSize();
 		if (size[0] != size[1])
 			throw new MatrizOperationException("No es posible triangular una matriz que no sea cuadrada");
-
+		if (m.determinante() == 0)
+			throw new MatrizOperationException("La matriz no tiene inversa");
+		
 		// Clono la matriz para trabajar sobre una copia
 		MatrizMath r = m.clone();
 		MatrizMath inversa = m.getIdentidad();

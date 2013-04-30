@@ -120,9 +120,6 @@ public class MatrizMath {
 	 *             La matriz debe ser cuadrada
 	 */
 	public double determinante() throws MatrizOperationException {
-		if (this.size[0] != this.size[1])
-			throw new MatrizOperationException("Para calcular el determinante la matriz debe ser cuadrada");
-
 		Triangulador triangulador = new TrianguladorGauss();
 		double[][] triangulada = triangulador.triangular(this).getMatriz();
 		double resultado = 1;
@@ -141,15 +138,9 @@ public class MatrizMath {
 	 *             La matriz debe ser cuadrada
 	 */
 	public MatrizMath inversa() throws MatrizOperationException {
-		if (this.size[0] != this.size[1])
-			throw new MatrizOperationException("Para calcular la inversa de la matriz debe ser cuadrada");
-		if (this.determinante() == 0)
-			throw new MatrizOperationException("La matriz no tiene inversa");
-
 		Triangulador triangulador = new InversorGaussJordan();
-		double[][] resultado = triangulador.triangular(this).getMatriz();
-
-		return new MatrizMath(resultado);
+		double[][] inversa = triangulador.triangular(this).getMatriz();
+		return new MatrizMath(inversa);
 	}
 
 	/**
@@ -159,7 +150,7 @@ public class MatrizMath {
 	 * @param f1
 	 *            fila origen
 	 * @param f2
-	 *            fila destino
+	 *            fila destinoeclipse-open:%E2%98%82=TP2/%5C/usr%5C/lib%5C/jvm%5C/java-1.7.0-openjdk-1.7.0.9.x86_64%5C/jre%5C/lib%5C/rt.jar%3Cjava.lang(System.class%E2%98%83System%5Eout
 	 */
 	public void intercambiarFilas(int f1, int f2) {
 		double[] aux = matriz[f2];
