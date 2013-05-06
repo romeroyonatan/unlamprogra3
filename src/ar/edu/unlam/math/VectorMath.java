@@ -28,6 +28,10 @@ public class VectorMath {
 		return valores;
 	}
 
+	public double get(int pos) {
+		return valores[pos];
+	}
+
 	public void setValores(double[] vector) {
 		this.valores = vector;
 	}

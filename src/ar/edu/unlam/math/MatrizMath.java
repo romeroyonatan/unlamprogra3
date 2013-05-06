@@ -1,6 +1,11 @@
 package ar.edu.unlam.math;
 
+import java.util.Arrays;
+
 import ar.edu.unlam.math.exception.MatrizOperationException;
+import ar.edu.unlam.math.triangulador.InversorGaussJordan;
+import ar.edu.unlam.math.triangulador.Triangulador;
+import ar.edu.unlam.math.triangulador.TrianguladorGauss;
 
 /**
  * Esta clase representa una Matriz matemática y permite realizar las
@@ -112,6 +117,31 @@ public class MatrizMath {
 		return new MatrizMath(resultado);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(matriz);
+		result = prime * result + Arrays.hashCode(size);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MatrizMath other = (MatrizMath) obj;
+		if (!Arrays.deepEquals(matriz, other.matriz))
+			return false;
+		if (!Arrays.equals(size, other.size))
+			return false;
+		return true;
+	}
+
 	/**
 	 * Obtiene el determinante de la matriz
 	 * 
@@ -202,6 +232,31 @@ public class MatrizMath {
 	public void sumarFilas(int f1, int f2) {
 		this.sumarFilas(f1, f2, 1d);
 	}
+	
+	/**
+	 * Obtiene la suma de la matriz por la matriz m2
+	 * 
+	 * @param m2
+	 *            Matriz a sumar
+	 * @return Resultado de la suma de matrices
+	 * @throws MatrizOperationException
+	 *             Para sumarse las matrices deben ser del mismo tamaño
+	 */
+	public MatrizMath sumar(MatrizMath m2) throws MatrizOperationException {
+		int size2[] = m2.getSize();
+		if (this.size[0] != size2[0] || this.size[1] != size2[1])
+			throw new MatrizOperationException("Para sumar el tamaño de las matrices debe ser igual");
+
+		double resultado[][] = new double[this.size[0]][];
+
+		for (int i = 0; i < size[0]; i++) {
+			resultado[i] = new double[size[1]];
+			for (int j = 0; j < size2[1]; j++)
+				resultado[i][j] = get(i, j) + m2.get(i, j);
+		}
+		return new MatrizMath(resultado);
+	}
+
 
 	/**
 	 * Obtiene la resta de la matriz por la matriz m2
@@ -222,7 +277,7 @@ public class MatrizMath {
 		for (int i = 0; i < size[0]; i++) {
 			resultado[i] = new double[size[1]];
 			for (int j = 0; j < size2[1]; j++)
-				resultado[i][j] += get(i, j) - m2.get(i, j);
+				resultado[i][j] = get(i, j) - m2.get(i, j);
 		}
 		return new MatrizMath(resultado);
 	}
@@ -254,17 +309,97 @@ public class MatrizMath {
 		return new MatrizMath(resultado);
 	}
 
+	/***
+	 * Obtiene la matriz producto de multiplicar por un escalar
+	 * 
+	 * @param m2
+	 *            Matriz a multiplicar
+	 * @return Resultado del producto
+	 */
+	public MatrizMath producto(double n) {
+		double resultado[][] = new double[this.size[0]][];
+
+		for (int i = 0; i < size[0]; i++) {
+			resultado[i] = new double[size[1]];
+			for (int j = 0; j < size[1]; j++)
+				resultado[i][j] += get(i, j) * n;
+		}
+		return new MatrizMath(resultado);
+	}
+	
+	/***
+	 * Obtiene la matriz producto de multiplicar por un vector
+	 * 
+	 * @param m2
+	 *            Matriz a multiplicar
+	 * @return Resultado del producto
+	 * @throws MatrizOperationException
+	 *             Para multiplicar el numero de columnas de la primer matriz debe coincidir con la dimension del vector
+	 */
+	public MatrizMath producto(VectorMath v) throws MatrizOperationException {
+		if (this.size[1] != v.getDimension())
+			throw new MatrizOperationException(
+					"Para multiplicar el numero de columnas de la matriz debe coincidir con la dimension del vector");
+		
+		double resultado[][] = new double[this.size[0]][];
+		
+		for (int i = 0; i < size[0]; i++) {
+			resultado[i] = new double[1];
+			for (int j = 0; j < size[1]; j++)
+				resultado[i][0] += get(i, j) * v.get(j);
+		}
+		return new MatrizMath(resultado);
+	}
+	
 	/**
-	 * Realiza la norma dos del vector, tambien llamada norma de Frobenius
+	 * Realiza la norma uno de la matriz (Suma absoluta de columnas)
+	 * 
+	 * @return (Suma absoluta de columnas)
+	 */
+	public double normaUno() {
+		double maximo = 0;
+		double valor;
+		for (int j = 0; j < size[0]; j++) {
+			valor = 0;
+			for (int i = 0; i < size[1]; i++) {
+				valor += Math.abs(get(i, j));
+				if (valor > maximo)
+					maximo = valor;
+			}
+		}
+		return maximo;
+	}
+	
+	/**
+	 * Realiza la norma dos de la matriz, tambien llamada norma de Frobenius
 	 * 
 	 * @return
 	 */
 	public double normaDos() {
 		double resultado = 0;
 		for (int i = 0; i < size[0]; i++)
-			for (int j = 0; j < size[0]; j++)
+			for (int j = 0; j < size[1]; j++)
 				resultado += get(i, j) * get(i, j);
 		return Math.sqrt(resultado);
+	}
+	
+	/**
+	 * Realiza la norma infinito de la matriz (Suma absoluta de filas)
+	 * 
+	 * @return (Suma absoluta de filas)
+	 */
+	public double normaInfinito() {
+		double maximo = 0;
+		double valor;
+		for (int i = 0; i < size[0]; i++) {
+			valor = 0;
+			for (int j = 0; j < size[1]; j++) {
+				valor += Math.abs(get(i, j));
+				if (valor > maximo)
+					maximo = valor;
+			}
+		}
+		return maximo;
 	}
 
 	/**
@@ -284,10 +419,15 @@ public class MatrizMath {
 		MatrizMath matriz2 = new MatrizMath(m2);
 		MatrizMath matriz3 = new MatrizMath(m3);
 		MatrizMath matriz4 = new MatrizMath(m4);
+		
+		VectorMath v1 = new VectorMath(1,1,1);
+		VectorMath v2 = new VectorMath(2,3,1);
+		VectorMath v3 = new VectorMath(0,0);
 
 		// Determinante
 		// ---------------------------------------------------------------------
 		try {
+			System.out.println("---------------------------------------------------------------------");
 			System.out.println("Determinante");
 			System.out.println("m1= " + matriz1.determinante() + " - Esperado 0");
 			System.out.println("m2= " + matriz2.determinante() + " - Esperado 8");
@@ -300,6 +440,7 @@ public class MatrizMath {
 		// Inversa
 		// ---------------------------------------------------------------------
 		try {
+			System.out.println("---------------------------------------------------------------------");
 			System.out.println("Inversa");
 			System.out.println("m2= " + matriz2.inversa());
 			System.out.println("m3= " + matriz3.inversa());
@@ -312,6 +453,7 @@ public class MatrizMath {
 		// Producto
 		// ---------------------------------------------------------------------
 		try {
+			System.out.println("---------------------------------------------------------------------");
 			System.out.println("Producto");
 			System.out.println("m2=" + matriz2);
 			System.out.println("m2 * I= " + matriz2.producto(matriz2.getIdentidad()));
@@ -331,6 +473,7 @@ public class MatrizMath {
 		// Norma dos
 		// ---------------------------------------------------------------------
 		try {
+			System.out.println("---------------------------------------------------------------------");
 			System.out.println("Norma dos");
 			System.out.println("m1= " + matriz1.normaDos() + " - Esperado 10.77032961");
 			System.out.println("m2= " + matriz2.normaDos() + " - Esperado 8.124038405");
@@ -340,18 +483,7 @@ public class MatrizMath {
 			e.printStackTrace();
 		}
 
-		// Resta
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("Resta");
-			System.out.println("m1= " + matriz1.resta(matriz1.getIdentidad()));
-			System.out.println("m2= " + matriz2.resta(matriz2));
-			System.out.println("m3= " + matriz3.resta(matriz2));
-			System.out.println("m4= " + matriz4.resta(matriz4));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+		
 		// Calculo de error
 		// ---------------------------------------------------------------------
 		try {
@@ -367,6 +499,99 @@ public class MatrizMath {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		
+		// Suma
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Suma");
+			System.out.println("m1 + Id= " + matriz1.sumar(matriz1.getIdentidad()));
+			System.out.println("m2 + m2= " + matriz2.sumar(matriz2));
+			System.out.println("m3 + m2= " + matriz3.sumar(matriz2));
+			System.out.println("m1 + m2= " + matriz1.sumar(matriz2));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Resta
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Resta");
+			System.out.println("m1= " + matriz1.resta(matriz1.getIdentidad()));
+			System.out.println("m2= " + matriz2.resta(matriz2));
+			System.out.println("m3= " + matriz3.resta(matriz2));
+			System.out.println("m4= " + matriz4.resta(matriz4));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Producto por escalar
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Producto por escalar");
+			System.out.println("m1 * 1= " + matriz1.producto(1));
+			System.out.println("m2 * 0= " + matriz2.producto(0));
+			System.out.println("m3 * 1000= " + matriz3.producto(1000));
+			System.out.println("m1 * PI= " + matriz1.producto(Math.PI));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Producto por vector
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Producto por vector");
+			System.out.println("m1 * " + v1 +  "=" + matriz1.producto(v1));
+			System.out.println("m1 * " + v2 +  "=" + matriz1.producto(v2));
+			System.out.println("m2 * " + v3 +  "=" + matriz2.producto(v3));
+			System.out.println("m4 * " + v1 +  "=" + matriz4.producto(v1));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Norma uno
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Norma Uno");
+			System.out.println("m1= " + matriz1.normaUno() + "- Esperado: 11");
+			System.out.println("m2= " + matriz2.normaUno() + "- Esperado: 10");
+			System.out.println("m3= " + matriz3.normaUno() + "- Esperado: 110.5");
+			System.out.println("m4= " + matriz4.normaUno() + "- Esperado: " + (3*Math.E+Math.PI*2));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Norma infinito
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Norma infinito");
+			System.out.println("m1= " + matriz1.normaInfinito() + "- Esperado: 13");
+			System.out.println("m2= " + matriz2.normaInfinito() + "- Esperado: 9");
+			System.out.println("m3= " + matriz3.normaInfinito() + "- Esperado: 162.5");
+			System.out.println("m4= " + matriz4.normaInfinito() + "- Esperado: " + (3*Math.E+Math.sqrt(3)/2));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Equals
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Equals");
+			System.out.println("m1 == m1 ? " + matriz1.equals(matriz1));
+			System.out.println("m1 == m2 ? " + matriz1.equals(v2));
+			System.out.println("m2 == m2.clone() " + matriz2.equals(matriz2.clone()));
+			System.out.println("m4 == null ? " + matriz4.equals(null));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

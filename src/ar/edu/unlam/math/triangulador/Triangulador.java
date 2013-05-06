@@ -1,4 +1,4 @@
-package ar.edu.unlam.math;
+package ar.edu.unlam.math.triangulador;
 
 import ar.edu.unlam.math.MatrizMath;
 import ar.edu.unlam.math.exception.MatrizOperationException;
