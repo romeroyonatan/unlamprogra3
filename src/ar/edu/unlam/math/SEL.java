@@ -13,7 +13,6 @@ public class SEL {
 	private static final double EPSILON = 1E-12;
 	// Atributos ~
 	// -----------------------------------------------------------------
-	private int dim;
 	private MatrizMath m;
 	private VectorMath x, b;
 	private double error;
@@ -31,15 +30,10 @@ public class SEL {
 	public SEL(MatrizMath m, VectorMath b) {
 		this.m = m;
 		this.b = b;
-		dim = m.getDimension()[1];
 	}
 
 	// Getters and setters ~
 	// -----------------------------------------------------------------
-	public int getDim() {
-		return dim;
-	}
-
 	public MatrizMath getM() {
 		return m;
 	}
@@ -81,7 +75,8 @@ public class SEL {
 
 	public double calcularError() throws Exception {
 		VectorMath aprox = new VectorMath(m.producto(x));
-		return b.restar(aprox).normaDos();
+		error = b.restar(aprox).normaDos();
+		return error;
 	}
 
 	public String mostrarResultado() {
@@ -127,7 +122,7 @@ public class SEL {
 			sel = new SEL(m2, b1);
 			sel.resolver();
 			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error:" + sel.calcularError());
+			System.out.println("Error: " + sel.getError());
 			System.out.println("Pasa prueba: " + sel.test());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,7 +136,7 @@ public class SEL {
 			sel = new SEL(m1, b3);
 			sel.resolver();
 			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error:" + sel.calcularError());
+			System.out.println("Error: " + sel.getError());
 			System.out.println("Pasa prueba: " + sel.test());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,7 +150,7 @@ public class SEL {
 			sel = new SEL(m3, b2);
 			sel.resolver();
 			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error:" + sel.calcularError());
+			System.out.println("Error: " + sel.getError());
 			System.out.println("Pasa prueba: " + sel.test());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -164,12 +159,12 @@ public class SEL {
 		// Caso 4
 		// ---------------------------------------------------------------------
 		try {
-			System.out.println("Caso 4: m4 y b1");
 			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Caso 4: m4 y b1");
 			sel = new SEL(m4, b1);
 			sel.resolver();
 			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error:" + sel.calcularError());
+			System.out.println("Error: " + sel.getError());
 			System.out.println("Pasa prueba: " + sel.test());
 		} catch (Exception e) {
 			e.printStackTrace();
