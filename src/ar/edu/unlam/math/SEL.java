@@ -11,6 +11,8 @@ import ar.edu.unlam.math.exception.SELException;
  */
 public class SEL {
 	private static final double EPSILON = 1E-12;
+	private static final int TAM_FATIGA = 1000;
+	
 	// Atributos ~
 	// -----------------------------------------------------------------
 	private MatrizMath m;
@@ -79,8 +81,8 @@ public class SEL {
 		return error;
 	}
 
-	public String mostrarResultado() {
-		return this.toString();
+	public void mostrarResultado() {
+		System.out.println(this.toString()); 
 	}
 
 	@Override
@@ -100,6 +102,14 @@ public class SEL {
 		double matriz2[][] = new double[][] { { 2d, 3d }, { 2d, 7d } };
 		double matriz3[][] = new double[][] { { 25d, 30d }, { 85.5d, 77d } };
 		double matriz4[][] = new double[][] { { 2 * Math.PI, Math.sqrt(2) }, { 3 * Math.E, Math.sqrt(3) / 2 } };
+		double matriz5[][] = new double[TAM_FATIGA][];
+		
+		for(int i=0; i < TAM_FATIGA; i++) {
+			matriz5[i] = new double[TAM_FATIGA];
+			for(int j=0; j < TAM_FATIGA; j++) {
+				matriz5[i][j] = Math.random();
+			}
+		}
 
 		// Creacion de objetos matriz
 		// ---------------------------------------------------------------------
@@ -107,10 +117,12 @@ public class SEL {
 		MatrizMath m2 = new MatrizMath(matriz2);
 		MatrizMath m3 = new MatrizMath(matriz3);
 		MatrizMath m4 = new MatrizMath(matriz4);
+		MatrizMath m5 = new MatrizMath(matriz5);
 
 		VectorMath b1 = new VectorMath(10 * Math.PI, 5 * Math.E);
 		VectorMath b2 = new VectorMath(1, 5);
 		VectorMath b3 = new VectorMath(10, 5, 1);
+		VectorMath b5 = new VectorMath(matriz5[2]);
 
 		SEL sel;
 
@@ -166,6 +178,23 @@ public class SEL {
 			System.out.println("Resultado:\n" + sel);
 			System.out.println("Error: " + sel.getError());
 			System.out.println("Pasa prueba: " + sel.test());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Caso 5
+		// ---------------------------------------------------------------------
+		try {
+			System.out.println("---------------------------------------------------------------------");
+			System.out.println("Caso 5: FATIGA");
+			long start = System.currentTimeMillis();
+			sel = new SEL(m5, b5);
+			sel.resolver();
+			long stop = System.currentTimeMillis();
+			System.out.println("Resultado:\n" + sel);
+			System.out.println("Error: " + sel.getError());
+			System.out.println("Pasa prueba: " + sel.test());
+			System.out.println("Tiempo: " + (stop - start));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
