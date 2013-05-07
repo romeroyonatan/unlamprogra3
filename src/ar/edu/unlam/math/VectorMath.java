@@ -22,6 +22,21 @@ public class VectorMath {
 			valores[i] = v[i];
 	}
 
+	public VectorMath(MatrizMath m) {
+		int cantidad = m.getDimension()[0];
+		if (cantidad > 1) {
+			valores = new double[cantidad];
+			for (int i = 0; i < cantidad; i++)
+				valores[i] = m.get(i, 0);
+		} else {
+			cantidad = m.getDimension()[1];
+			valores = new double[cantidad];
+			for (int i = 0; i < cantidad; i++)
+				valores[i] = m.get(0, i);
+		}
+
+	}
+
 	// Getters & Setters ~
 	// -------------------------------------------------------
 	public double[] getValores() {

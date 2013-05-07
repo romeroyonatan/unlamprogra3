@@ -8,7 +8,7 @@ public class TrianguladorGauss implements Triangulador {
 	@Override
 	public MatrizMath triangular(MatrizMath m) throws MatrizOperationException {
 		// Verifico si la matriz es cuadrada
-		int[] size = m.getSize();
+		int[] size = m.getDimension();
 		if (size[0] != size[1])
 			throw new MatrizOperationException("No es posible triangular una matriz que no sea cuadrada");
 

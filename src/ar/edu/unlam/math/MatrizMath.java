@@ -67,7 +67,7 @@ public class MatrizMath {
 	 * @return Devuelve el tamaño de la matriz, siendo el primer elemento el
 	 *         numero de filas y el segundo el numero de columnas
 	 */
-	public int[] getSize() {
+	public int[] getDimension() {
 		return size;
 	}
 
@@ -243,7 +243,7 @@ public class MatrizMath {
 	 *             Para sumarse las matrices deben ser del mismo tamaño
 	 */
 	public MatrizMath sumar(MatrizMath m2) throws MatrizOperationException {
-		int size2[] = m2.getSize();
+		int size2[] = m2.getDimension();
 		if (this.size[0] != size2[0] || this.size[1] != size2[1])
 			throw new MatrizOperationException("Para sumar el tamaño de las matrices debe ser igual");
 
@@ -268,7 +268,7 @@ public class MatrizMath {
 	 *             Para restarse las matrices deben ser del mismo tamaño
 	 */
 	public MatrizMath resta(MatrizMath m2) throws MatrizOperationException {
-		int size2[] = m2.getSize();
+		int size2[] = m2.getDimension();
 		if (this.size[0] != size2[0] || this.size[1] != size2[1])
 			throw new MatrizOperationException("Para restar el tamaño de las matrices debe ser igual");
 
@@ -293,7 +293,7 @@ public class MatrizMath {
 	 *             debe coincidir con el numero de filas de la segunda matriz
 	 */
 	public MatrizMath producto(MatrizMath m2) throws MatrizOperationException {
-		int size2[] = m2.getSize();
+		int size2[] = m2.getDimension();
 		if (this.size[1] != size2[0])
 			throw new MatrizOperationException(
 					"Para multiplicar el numero de columnas de la primer matriz debe coincidir con el numero de filas de la segunda matriz");
