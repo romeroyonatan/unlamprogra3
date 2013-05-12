@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class GeneradorInputSEL {
-	private static int DIMENSION = 50;
-	private static double NUMERO_MAS_GRANDE = Integer.MAX_VALUE;
+	private static int DIMENSION = 500;
+	private static double NUMERO_MAS_GRANDE = 100;
 	private double[][] matriz;
 
 	public GeneradorInputSEL() {
