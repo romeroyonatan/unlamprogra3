@@ -37,7 +37,7 @@ public class MatrizMath {
 		if (matriz.length > 0 && matriz[0] != null)
 			this.size = new int[] { matriz.length, matriz[0].length };
 	}
-
+	
 	// Getters and setters ~
 	// -----------------------------------------------------------------
 	protected double[][] getMatriz() {

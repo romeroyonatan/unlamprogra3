@@ -2,6 +2,7 @@ package ar.edu.unlam.math;
 
 import java.util.Arrays;
 
+import ar.edu.unlam.math.exception.MatrizOperationException;
 import ar.edu.unlam.math.exception.VectorDimensionException;
 
 public class VectorMath {
@@ -187,6 +188,19 @@ public class VectorMath {
 		return producto(new Double(n));
 	}
 
+	/***
+	 * Realiza el producto escalar entre el vector y una matriz
+	 * 
+	 * @param n
+	 *            Numero entero con el que se hará el producto
+	 * @return Vector resultado del producto
+	 * @throws MatrizOperationException 
+	 */
+	public MatrizMath producto(MatrizMath m) throws MatrizOperationException {
+		return m.producto(this);
+	}
+
+	
 	/***
 	 * Realiza la norma uno del vector
 	 * 

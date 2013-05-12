@@ -1,5 +1,12 @@
 package ar.edu.unlam.math;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import ar.edu.unlam.math.exception.MatrizOperationException;
 import ar.edu.unlam.math.exception.SELException;
 
@@ -11,13 +18,13 @@ import ar.edu.unlam.math.exception.SELException;
  */
 public class SEL {
 	private static final double EPSILON = 1E-12;
-	private static final int TAM_FATIGA = 1000;
-	
+
 	// Atributos ~
 	// -----------------------------------------------------------------
 	private MatrizMath m;
 	private VectorMath x, b;
 	private double error;
+	private boolean tieneSolucion;
 
 	// Constructores ~
 	// -----------------------------------------------------------------
@@ -32,6 +39,59 @@ public class SEL {
 	public SEL(MatrizMath m, VectorMath b) {
 		this.m = m;
 		this.b = b;
+	}
+
+	/**
+	 * Construye el sistema de ecuaciones lineales en base al contenido del
+	 * archivo
+	 * 
+	 * @param file
+	 *            Ubicacion del archivo
+	 */
+	public SEL(String file) throws SELException {
+		File f = null;
+		FileReader fr = null;
+		BufferedReader in = null;
+		String linea;
+		double matriz[][];
+		double vector[];
+		try {
+			f = new File(file);
+			fr = new FileReader(f);
+			in = new BufferedReader(fr);
+
+			// Leo la dimension de la matriz
+			linea = in.readLine();
+			int dim = Integer.valueOf(linea);
+			matriz = new double[dim][];
+
+			// Leo los valores de la matriz
+			for (int i = 0; i < dim; i++) {
+				matriz[i] = new double[dim];
+				linea = in.readLine();
+				String[] numeros = linea.split(" ");
+				for (int j = 0; j < dim; j++)
+					matriz[i][j] = Double.valueOf(numeros[j]);
+			}
+
+			// Leo los valores del vector resultado
+			vector = new double[dim];
+			for (int i = 0; i < dim; i++)
+				vector[i] = Double.valueOf(in.readLine());
+
+			this.m = new MatrizMath(matriz);
+			this.b = new VectorMath(vector);
+
+		} catch (Exception e) {
+			throw new SELException(e);
+		} finally {
+			if (fr != null)
+				try {
+					fr.close();
+				} catch (IOException e) {
+					throw new SELException(e);
+				}
+		}
 	}
 
 	// Getters and setters ~
@@ -66,7 +126,9 @@ public class SEL {
 		try {
 			x = new VectorMath(m.inversa().producto(b));
 			calcularError();
+			tieneSolucion = true;
 		} catch (MatrizOperationException e) {
+			tieneSolucion = false;
 			throw new SELException("El sistema de ecuaciones no tiene solución", e);
 		}
 	}
@@ -82,119 +144,77 @@ public class SEL {
 	}
 
 	public void mostrarResultado() {
-		System.out.println(this.toString()); 
+		System.out.println(this.toString());
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < x.getDimension(); i++)
-			sb.append("x" + i + " = " + x.get(i) + "\n");
+		if(tieneSolucion) {
+			int dim = this.getX().getDimension();
+			sb.append(dim + "\n");
+			for (int i = 0; i < dim; i++)
+				sb.append("x" + i + " = " + x.get(i) + "\n");
+			sb.append(this.getError());
+		} else {
+			sb.append("EL SISTEMA NO TIENE SOLUCION");
+		}
 		return sb.toString();
+	}
+
+	public void toFile(String file) throws SELException {
+		FileWriter fw = null;
+		PrintWriter out = null;
+
+		try {
+			fw = new FileWriter(file);
+			out = new PrintWriter(fw);
+			out.println(this);
+		} catch (Exception e) {
+			throw new SELException(e);
+		} finally {
+			try {
+				if (fw != null)
+					fw.close();
+			} catch (IOException e) {
+				throw new SELException(e);
+			}
+		}
 	}
 
 	// Test ~
 	// -----------------------------------------------------------------
 	public static void main(String[] args) {
-		// Creacion de matrices
-		// ---------------------------------------------------------------------
-		double matriz1[][] = new double[][] { { 2d, 0d, 1d }, { 2d, 1d, 1d }, { 2d, 10d, 1d } };
-		double matriz2[][] = new double[][] { { 2d, 3d }, { 2d, 7d } };
-		double matriz3[][] = new double[][] { { 25d, 30d }, { 85.5d, 77d } };
-		double matriz4[][] = new double[][] { { 2 * Math.PI, Math.sqrt(2) }, { 3 * Math.E, Math.sqrt(3) / 2 } };
-		double matriz5[][] = new double[TAM_FATIGA][];
-		
-		for(int i=0; i < TAM_FATIGA; i++) {
-			matriz5[i] = new double[TAM_FATIGA];
-			for(int j=0; j < TAM_FATIGA; j++) {
-				matriz5[i][j] = Math.random();
+		double inicio, fin;
+		try {
+			// Abro carpeta test/input
+			File directorio = new File("test/input");
+			String nombre;
+			// Recorro los archivos uno a uno
+			for (File archivo : directorio.listFiles()) {
+				
+				// Obtengo el nombre del archivo
+				nombre = archivo.getName();
+				
+				// Abro el archivo de entrada
+				SEL test = new SEL("test/input/" + nombre);
+				
+				// Ejecuto la prueba
+				inicio = System.currentTimeMillis();
+				try{
+					test.resolver();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				fin = System.currentTimeMillis();
+				
+				// Escribo el archivo de salida
+				nombre = nombre.split("\\.")[0];
+				test.toFile("test/output real/" + nombre + ".out");
+				
+				// Muestro tiempo utilizado
+				System.out.println(nombre + ": " + (fin - inicio) + " ms");
 			}
-		}
-
-		// Creacion de objetos matriz
-		// ---------------------------------------------------------------------
-		MatrizMath m1 = new MatrizMath(matriz1);
-		MatrizMath m2 = new MatrizMath(matriz2);
-		MatrizMath m3 = new MatrizMath(matriz3);
-		MatrizMath m4 = new MatrizMath(matriz4);
-		MatrizMath m5 = new MatrizMath(matriz5);
-
-		VectorMath b1 = new VectorMath(10 * Math.PI, 5 * Math.E);
-		VectorMath b2 = new VectorMath(1, 5);
-		VectorMath b3 = new VectorMath(10, 5, 1);
-		VectorMath b5 = new VectorMath(matriz5[2]);
-
-		SEL sel;
-
-		// Caso 1
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("---------------------------------------------------------------------");
-			System.out.println("Caso 1: m2 y b1");
-			sel = new SEL(m2, b1);
-			sel.resolver();
-			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error: " + sel.getError());
-			System.out.println("Pasa prueba: " + sel.test());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Caso 2
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("---------------------------------------------------------------------");
-			System.out.println("Caso 2: m1 y b3");
-			sel = new SEL(m1, b3);
-			sel.resolver();
-			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error: " + sel.getError());
-			System.out.println("Pasa prueba: " + sel.test());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Caso 3
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("---------------------------------------------------------------------");
-			System.out.println("Caso 3: m3 y b2");
-			sel = new SEL(m3, b2);
-			sel.resolver();
-			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error: " + sel.getError());
-			System.out.println("Pasa prueba: " + sel.test());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Caso 4
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("---------------------------------------------------------------------");
-			System.out.println("Caso 4: m4 y b1");
-			sel = new SEL(m4, b1);
-			sel.resolver();
-			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error: " + sel.getError());
-			System.out.println("Pasa prueba: " + sel.test());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Caso 5
-		// ---------------------------------------------------------------------
-		try {
-			System.out.println("---------------------------------------------------------------------");
-			System.out.println("Caso 5: FATIGA");
-			long start = System.currentTimeMillis();
-			sel = new SEL(m5, b5);
-			sel.resolver();
-			long stop = System.currentTimeMillis();
-			System.out.println("Resultado:\n" + sel);
-			System.out.println("Error: " + sel.getError());
-			System.out.println("Pasa prueba: " + sel.test());
-			System.out.println("Tiempo: " + (stop - start));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

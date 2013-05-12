@@ -9,6 +9,10 @@ public class SELException extends Exception {
 		super(string, e);
 	}
 
+	public SELException(Exception e) {
+		super(e);
+	}
+
 	private static final long serialVersionUID = 1L;
 
 }
